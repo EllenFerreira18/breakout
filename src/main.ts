@@ -1,9 +1,13 @@
-import { Actor, CollisionType, Color, Engine, vec, Text, Font} from "excalibur"
+import { Actor, CollisionType, Color, Engine, vec, Text, Font, Label, FontUnit, Sound, Loader} from "excalibur"
 
 const game = new Engine({
 	width: 800,
 	height: 600
 })
+
+const sound = new Sound('src/som/pickup.wav');
+const loader = new Loader([sound]);
+
 
 const barra = new Actor({
 	x: 150,
@@ -91,28 +95,46 @@ listaBlocos.forEach(bloco => {
 
 let pontos = 0
 
-const textoPontos = new Text({
-	text: "Hello",
-	font: new Font({ size: 20 })
+const textoPontos = new Label({
+	text: pontos.toString(),
+	font: new Font({
+		size: 40,
+		color: Color.White,
+		strokeColor: Color.Black,
+		unit: FontUnit.Px
+	}),
+	pos: vec(700, 500)
 })
 
-const objetoTexto = new Actor({
-	x: game.drawWidth - 80,
-	y: game.drawHeight - 15
-})
+game.add(textoPontos)
 
-objetoTexto.graphics.use(textoPontos)
+// const textoPontos = new Text({
+// 	text: "Hello",
+// 	font: new Font({ size: 20 })
+// })
 
-game.add(objetoTexto)
+// const objetoTexto = new Actor({
+// 	x: game.drawWidth - 80,
+// 	y: game.drawHeight - 15
+// })
+
+// objetoTexto.graphics.use(textoPontos)
+
+// game.add(objetoTexto)
 
 let colidindo: boolean = false
-
 
 bolinha.on("collisionstart", (event) => {
 	console.log("Colidiu com", event.other.name);
 
 	if (listaBlocos.includes(event.other)) {
 		event.other.kill()
+
+		sound.play(1);
+
+		pontos++
+
+		textoPontos.text = pontos.toString()
 	}
 
 	let interseccao = event.contact.mtv.normalize()
@@ -139,4 +161,4 @@ bolinha.on("exitviewport", () => {
 	window.location.reload()
 })
 
-game.start()
+await game.start(loader);
