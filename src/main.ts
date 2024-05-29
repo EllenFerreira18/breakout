@@ -1,4 +1,4 @@
-import { Actor, CollisionType, Color, Engine, vec, Text, Font, Label, FontUnit, Sound, Loader} from "excalibur"
+import { Actor, CollisionType, Color, Engine, vec, Text, Font, Label, FontUnit, Sound, Loader } from "excalibur"
 
 const game = new Engine({
 	width: 800,
@@ -6,7 +6,9 @@ const game = new Engine({
 })
 
 const sound = new Sound('src/som/pickup.wav');
-const loader = new Loader([sound]);
+const gameOverSound = new Sound('sr/som/over.wav')
+
+const loader = new Loader([sound, gameOverSound]);
 
 
 const barra = new Actor({
@@ -34,6 +36,10 @@ const bolinha = new Actor({
 })
 
 bolinha.body.collisionType = CollisionType.Passive
+
+let coresBolinha = [Color.Black, Color.Chartreuse, Color.Cyan, Color.Orange, Color.Magenta, Color.Red, Color.Rose, Color.Violet]
+
+let numeroCores = coresBolinha.length
 
 const velocidadeBolinha = vec(300, 300)
 
@@ -134,7 +140,14 @@ bolinha.on("collisionstart", (event) => {
 
 		pontos++
 
+		bolinha.color = coresBolinha[ Math.trunc( Math.random() * numeroCores) ]
+
 		textoPontos.text = pontos.toString()
+
+		if (pontos == 15) {
+			alert('Você venceu!')
+			window.location.reload()
+		}
 	}
 
 	let interseccao = event.contact.mtv.normalize()
@@ -146,9 +159,7 @@ bolinha.on("collisionstart", (event) => {
 			bolinha.vel.x = bolinha.vel.x * -1
 		} else {
 			bolinha.vel.y = bolinha.vel.y * -1
-
 		}
-
 	}
 })
 
@@ -157,8 +168,12 @@ bolinha.on("collisionend", () => {
 })
 
 bolinha.on("exitviewport", () => {
-	alert("E morreu")
-	window.location.reload()
+	gameOverSound.play(1)
+		.then(() => {
+
+			alert("E morreu")
+			window.location.reload()
+		})
 })
 
 await game.start(loader);
